@@ -80,24 +80,30 @@ Database consists of one table electricityData.
 
 ## ElectricityData table
 
-| Column | Description | Type |
-| ----------- | ----------- | ----------- |
-| id | id, primary key | integer |
-| date | date of the data point | DATE |
-| startTime | Starting time of the hour for the data point | TIMESTAMP |
-| productionAmount | Electricity production for the hour MWh/h | NUMERIC(11,5) *NULL* |
-| consumptionAmount | Electricity consumption for the hour kWh | NUMERIC(11,3) *NULL* |
-| hourlyPrice | Electricity price for the hour | NUMERIC(6,3) *NULL* |
+| Column            | Description                                  | Type                 |
+| ----------------- | -------------------------------------------- | -------------------- |
+| id                | id, primary key                              | integer              |
+| date              | date of the data point                       | DATE                 |
+| startTime         | Starting time of the hour for the data point | TIMESTAMP            |
+| productionAmount  | Electricity production for the hour MWh/h    | NUMERIC(11,5) _NULL_ |
+| consumptionAmount | Electricity consumption for the hour kWh     | NUMERIC(11,3) _NULL_ |
+| hourlyPrice       | Electricity price for the hour               | NUMERIC(6,3) _NULL_  |
 
 # Documentation
 
 ## Installation
 
+## AI used
+
+- Used in creating the SQL aggregations and setting pagination, filtering and sorting for more coherent data.
+- Used in creating a simple plan for a step by step guide for coding a project from scratch with selected techstack.
+- Used in understanding errors better
+
 ## API Endpoints
 
-| Endpoint | Method | Query / Path Params | Response | Notes |
-| ----------- | ----------- | ----------- | ----------- | ----------- |
-| `/api/v1/days`| GET | `page` (int, optional, default=1)<br> `pageSize` (int, optional, default=20)<br> `sort` (string, optional, e.g., `avgPrice`)<br> `order` (string, `asc` or `desc`)<br> `search` (string, optional, YYYY-MM filter) | `{ data: [{ date, totalConsumption, totalProduction, avgPrice, longestNegativeStreak }], page, pageSize, total }` | Returns a paginated list of daily electricity statistics. Supports sorting, filtering, and search by date. |
-| `/api/v1/days/:date` | GET | `date` (string, YYYY-MM-DD) | `{ date, totalConsumption, totalProduction, avgPrice, hourWithMaxConsumptionVsProduction, cheapestHours }` | Returns detailed statistics for a single day, including the hour with the largest consumption surplus and the cheapest hours. Returns 404 if the date does not exist. |
-| `/api/v1/days/:date/hours` | GET | `date` (string, YYYY-MM-DD) | `{ date, hours: [{ hour, consumption, production, price }] }` | Optional endpoint providing hourly data for the day, useful for charts. Returns 404 if the date does not exist. |
-| `/api/v1/health` | GET | none | `{ status: "ok" }` | Simple health check endpoint to verify the backend is running. |
+| Endpoint                   | Method | Query / Path Params                                                                                                                                                                                                | Response                                                                                                          | Notes                                                                                                                                                                 |
+| -------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/v1/days`             | GET    | `page` (int, optional, default=1)<br> `pageSize` (int, optional, default=20)<br> `sort` (string, optional, e.g., `avgPrice`)<br> `order` (string, `asc` or `desc`)<br> `search` (string, optional, YYYY-MM filter) | `{ data: [{ date, totalConsumption, totalProduction, avgPrice, longestNegativeStreak }], page, pageSize, total }` | Returns a paginated list of daily electricity statistics. Supports sorting, filtering, and search by date.                                                            |
+| `/api/v1/days/:date`       | GET    | `date` (string, YYYY-MM-DD)                                                                                                                                                                                        | `{ date, totalConsumption, totalProduction, avgPrice, hourWithMaxConsumptionVsProduction, cheapestHours }`        | Returns detailed statistics for a single day, including the hour with the largest consumption surplus and the cheapest hours. Returns 404 if the date does not exist. |
+| `/api/v1/days/:date/hours` | GET    | `date` (string, YYYY-MM-DD)                                                                                                                                                                                        | `{ date, hours: [{ hour, consumption, production, price }] }`                                                     | Optional endpoint providing hourly data for the day, useful for charts. Returns 404 if the date does not exist.                                                       |
+| `/api/v1/health`           | GET    | none                                                                                                                                                                                                               | `{ status: "ok" }`                                                                                                | Simple health check endpoint to verify the backend is running.                                                                                                        |
