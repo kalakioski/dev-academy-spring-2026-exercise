@@ -1,8 +1,13 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import { daysRoutes } from './routes/days.routes.js';
 
 const app = Fastify();
+
+await app.register(cors, {
+  origin: true,
+});
 
 app.register(daysRoutes);
 

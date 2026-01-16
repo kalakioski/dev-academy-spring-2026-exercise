@@ -84,10 +84,10 @@ Database consists of one table electricityData.
 | ----------------- | -------------------------------------------- | -------------------- |
 | id                | id, primary key                              | integer              |
 | date              | date of the data point                       | DATE                 |
-| startTime         | Starting time of the hour for the data point | TIMESTAMP            |
-| productionAmount  | Electricity production for the hour MWh/h    | NUMERIC(11,5) _NULL_ |
-| consumptionAmount | Electricity consumption for the hour kWh     | NUMERIC(11,3) _NULL_ |
-| hourlyPrice       | Electricity price for the hour               | NUMERIC(6,3) _NULL_  |
+| starttime         | Starting time of the hour for the data point | TIMESTAMP            |
+| productionamount  | Electricity production for the hour MWh/h    | NUMERIC(11,5) _NULL_ |
+| consumptionamount | Electricity consumption for the hour kWh     | NUMERIC(11,3) _NULL_ |
+| hourlyprice       | Electricity price for the hour               | NUMERIC(6,3) _NULL_  |
 
 # Documentation
 

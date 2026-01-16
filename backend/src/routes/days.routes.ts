@@ -1,5 +1,8 @@
 import { FastifyInstance } from 'fastify';
-import { getDailyStats } from '../repositories/electricity.repositories.js';
+import {
+  getDailyStats,
+  getSingleDayStats,
+} from '../repositories/electricity.repositories.js';
 
 export async function daysRoutes(app: FastifyInstance) {
   app.get(
@@ -45,6 +48,29 @@ export async function daysRoutes(app: FastifyInstance) {
       });
 
       return { data };
+    }
+  );
+
+  app.get(
+    '/api/days/:date',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          properties: {
+            date: { type: 'string', format: 'date' },
+          },
+          required: ['date'],
+        },
+      },
+    },
+    async (req, reply) => {
+      const { date } = req.params as { date: string };
+      const data = await getSingleDayStats(date);
+      if (!data) {
+        return reply.code(404).send({ error: 'Date not found' });
+      }
+      return data;
     }
   );
 }
