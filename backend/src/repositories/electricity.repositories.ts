@@ -97,7 +97,7 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
       ),
       daily_stats AS (
         SELECT
-          e.date,
+          e.date::date AS date,
           SUM(e."consumptionamount") AS total_consumption,
           SUM(e."productionamount") AS total_production,
           AVG(e."hourlyprice") AS avg_price,
@@ -105,7 +105,7 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
         FROM "electricitydata" e
         LEFT JOIN max_streak m ON e.date = m.date
         ${whereClause}
-        GROUP BY e.date, m.longest_negative_streak_hours
+        GROUP BY e.date::date, m.longest_negative_streak_hours
         ${havingClause}
       )
       SELECT * FROM daily_stats
@@ -133,14 +133,15 @@ export async function getSingleDayStats(date: string) {
     // Combine all queries into one for efficiency
     const query = `
       SELECT
-        $1::date as date,
+        TO_CHAR($1::date, 'YYYY-MM-DD') AS date,
         SUM("consumptionamount") as total_consumption,
         SUM("productionamount") as total_production,
         AVG("hourlyprice") as avg_price,
         (ARRAY_AGG("starttime" ORDER BY ("consumptionamount" - "productionamount") DESC))[1] as max_consumption_hour,
         (ARRAY_AGG("starttime" ORDER BY "hourlyprice" ASC))[1] as cheapest_hour
       FROM "electricitydata"
-      WHERE date = $1::date
+      WHERE date >= $1::date
+        AND date < ($1::date + INTERVAL '1 day')
       GROUP BY date
     `;
 
@@ -157,7 +158,7 @@ export async function getSingleDayStats(date: string) {
       totalProduction: row.total_production ?? 0,
       avgPrice: row.avg_price ?? 0,
       maxConsumptionHour: row.max_consumption_hour || null,
-      cheapestHours: row.cheapest_hour || null,
+      cheapestHour: row.cheapest_hour || null,
     };
   } catch (error) {
     console.error('Error fetching single day stats:', error);
