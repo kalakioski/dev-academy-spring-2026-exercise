@@ -226,9 +226,7 @@ export default function DailyListPage() {
           Previous
         </button>
 
-        <span style={{ margin: '0 12px' }}>
-          Page {page} / {Math.ceil(total / pageSize)}
-        </span>
+        <span style={{ margin: '0 12px' }}>Page {page}</span>
 
         <button
           disabled={page * pageSize >= total}

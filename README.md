@@ -93,12 +93,10 @@ Database consists of one table electricityData.
 
 ## Installation
 
-Initialize the docker from previous instructions for the database
-
 Requires an env file in the backend folder with these specs:
 
 ```
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=5432
 DB_USER=academy
 DB_PASSWORD=academy
@@ -107,11 +105,10 @@ DB_NAME=electricity
 
 Backend:
 
+Backend can be run through Docker
+
 ```
-cd backend
-npm install
-npm run build
-npm start
+docker compose up --build --renew-anon-volumes -d
 ```
 
 Server starts on http://localhost:3000
@@ -125,6 +122,13 @@ npm run dev
 ```
 
 Vite starts on http://localhost:5173/
+
+E2E tests for `days.routes.ts` in the backend:
+
+```
+cd backend
+npm run test
+```
 
 ## AI used
 

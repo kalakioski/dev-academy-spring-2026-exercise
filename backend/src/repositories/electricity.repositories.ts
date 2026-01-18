@@ -31,7 +31,7 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
     } = options;
 
     // Validate order parameter to prevent SQL injection
-    const validOrder = order.toLowerCase() === 'desc' ? 'desc' : 'asc';
+    const validOrder = order?.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     // Build WHERE and HAVING clauses for filtering
     const whereConditions: string[] = [];
@@ -64,20 +64,35 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
         ? `HAVING ${havingConditions.join(' AND ')}`
         : '';
 
-    // Sort field is already type-safe from interface
-    const sortField = sort || 'date';
+    const SORT_MAP: Record<string, string> = {
+      date: 'date',
+      total_consumption: 'total_consumption',
+      total_production: 'total_production',
+      avg_price: 'avg_price',
+      longest_negative_streak_hours: 'longest_negative_streak_hours',
+    };
+
+    const sortKey = sort ?? 'date';
+    const sortField = SORT_MAP[sortKey] ?? SORT_MAP.date;
 
     // Calculate offset
     const offset = (page - 1) * pageSize;
+    values.push(pageSize, offset);
 
     const query = `
       WITH negative_streaks AS (
         SELECT
           date,
-          SUM(CASE WHEN "hourlyprice" >= 0 THEN 1 ELSE 0 END)
-              OVER (PARTITION BY date ORDER BY "starttime") AS grp,
-          "hourlyprice"
-        FROM "electricitydata"
+          SUM(
+            CASE
+              WHEN hourlyprice IS NULL THEN 1
+              WHEN hourlyprice >= 0 THEN 1
+              ELSE 0
+            END
+          )
+              OVER (PARTITION BY date ORDER BY starttime NULLS LAST) AS grp,
+          hourlyprice
+        FROM electricitydata
       ),
       streak_lengths AS (
         SELECT
@@ -85,7 +100,7 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
           grp,
           COUNT(*) AS length
         FROM negative_streaks
-        WHERE "hourlyprice" < 0
+        WHERE hourlyprice < 0
         GROUP BY date, grp
       ),
       max_streak AS (
@@ -109,11 +124,9 @@ export async function getDailyStats(options: GetDailyStatsOptions = {}) {
         ${havingClause}
       )
       SELECT * FROM daily_stats
-      ORDER BY ${sortField} ${validOrder.toUpperCase()}
-      LIMIT $${values.length + 1} OFFSET $${values.length + 2};
+      ORDER BY ${sortField} ${validOrder}
+      LIMIT $${values.length - 1} OFFSET $${values.length};
     `;
-
-    values.push(pageSize, offset);
 
     const result = await pool.query(query, values);
     return result.rows;
